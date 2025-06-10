@@ -47,11 +47,21 @@ jobs:
         pip install -r requirements.txt
         pip install pytest pytest-asyncio httpx
     
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h localhost -p 5432 -U user; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+        echo "PostgreSQL is ready!"
+    
     - name: Run migrations
       env:
         DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/taskdb
       run: |
+        echo "Running Alembic migrations..."
         alembic upgrade head
+        echo "Migrations completed successfully!"
     
     - name: Run tests
       env:

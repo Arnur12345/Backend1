@@ -76,6 +76,9 @@ install: ## Install dependencies locally
 test: ## Run tests (placeholder)
 	@echo "Tests not implemented yet"
 
+check-migrations: ## Check migrations locally
+	python scripts/check_migrations.py
+
 # Production
 prod-build: ## Build for production
 	docker build -t task-manager-api .
