@@ -1,48 +1,57 @@
 services:
   db:
-    image: postgres:15-alpine
-    restart: always
+    image: postgres:16
+    platform: linux/amd64
     environment:
-      POSTGRES_USER: user
+      POSTGRES_USER: username
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: taskdb
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: postgresdb
+      POSTGRES_HOST: db
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d taskdb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    shm_size: 512mb
+    ports:
+      - "5433:5432"
+    networks:
+      - mynetwork
 
-  app:
+  backend:
     build: 
-      context: .
+      context: ./2lecture
       dockerfile: Dockerfile
-    restart: always
+    platform: linux/amd64
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./2lecture/src:/app/src
+      - ./2lecture/alembic.ini:/app/alembic.ini
+      - ./2lecture/migrations:/app/migrations
+      - ./2lecture/.env:/app/.env
     ports:
       - "8000:8000"
-    environment:
-      DATABASE_URL: postgresql+asyncpg://user:password@db:5432/taskdb
-      SECRET_KEY: your-super-secret-key-change-in-production
-      ENVIRONMENT: production
     depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - .:/app
-    command: >
-      sh -c "sleep 10 &&
-             alembic upgrade head &&
-             uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 1"
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 512M
+      - db
+    environment:
+      - DATABASE_URL=postgresql://username:password@db:5432/postgresdb
+    working_dir: /app/src
+    networks:
+      - mynetwork
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
 
 volumes:
-  postgres_data: 
+  postgres_data:
