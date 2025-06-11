@@ -17,15 +17,15 @@ services:
 
   backend:
     build: 
-      context: ./backend
+      context: ./backend1
       dockerfile: Dockerfile
     platform: linux/amd64
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
-      - ./backend/src:/app/src
-      - ./backend/alembic.ini:/app/alembic.ini
-      - ./backend/migrations:/app/migrations
-      - ./backend/.env:/app/.env
+      - ./backend1/src:/app/src
+      - ./backend1/alembic.ini:/app/alembic.ini
+      - ./backend1/migrations:/app/migrations
+      - ./backend1/.env:/app/.env
     ports:
       - "8000:8000"
     depends_on:
