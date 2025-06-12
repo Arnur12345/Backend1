@@ -1,11 +1,11 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { AuthProvider } from '../../lib/auth/AuthContext.jsx'
+import { AuthProvider } from '../../lib/auth/AuthContext'
 import Layout from '../../shared/ui/Layout'
 import LoginPage from '../../modules/auth/pages/LoginPage'
 import { RegisterPage } from '../../modules/auth/pages/RegisterPage'
 import TasksPage from '../../modules/tasks/pages/TasksPage'
-import AgenticPage from '../../modules/agentic/pages/AgenticPage.jsx'
+import AgenticPage from '../../modules/agentic/pages/AgenticPage'
 import ProtectedRoute from '../../shared/ui/ProtectedRoute'
 
 function App() {
