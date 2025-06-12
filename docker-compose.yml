@@ -46,7 +46,7 @@ services:
       - mynetwork
 
   celery:
-    image: fastapi_struct-backend
+    image: backend1
     platform: linux/amd64
     command: celery -A celery_app.celery_app worker --loglevel=info
     volumes:
@@ -55,7 +55,6 @@ services:
     depends_on:
       - redis
       - db
-      - backend
     environment:
       - DATABASE_URL=postgresql://username:password@db:5432/postgresdb
       - REDIS_URL=redis://redis:6379/0
@@ -64,7 +63,7 @@ services:
       - mynetwork
 
   celery-beat:
-    image: fastapi_struct-backend
+    image: backend1
     platform: linux/amd64
     command: celery -A celery_app.celery_app beat --loglevel=info
     volumes:
@@ -73,7 +72,6 @@ services:
     depends_on:
       - redis
       - db
-      - backend
     environment:
       - DATABASE_URL=postgresql://username:password@db:5432/postgresdb
       - REDIS_URL=redis://redis:6379/0
