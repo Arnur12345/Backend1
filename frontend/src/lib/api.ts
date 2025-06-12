@@ -1,6 +1,6 @@
 import type { User, Task, TaskCreate, TaskUpdate, UserCreate, LoginCredentials, AuthResponse, FileInfo, UploadedFile, ChatHistory, QuestionRequest, AgentResponse, AgentInfo } from './types'
 
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = '/api'
 
 class ApiClient {
   private getAuthHeaders(): HeadersInit {
