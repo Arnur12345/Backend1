@@ -46,7 +46,9 @@ services:
       - mynetwork
 
   celery:
-    image: backend1
+    build:
+      context: ./backend1
+      dockerfile: Dockerfile
     platform: linux/amd64
     command: celery -A celery_app.celery_app worker --loglevel=info
     volumes:
@@ -63,7 +65,9 @@ services:
       - mynetwork
 
   celery-beat:
-    image: backend1
+    build:
+      context: ./backend1
+      dockerfile: Dockerfile
     platform: linux/amd64
     command: celery -A celery_app.celery_app beat --loglevel=info
     volumes:
