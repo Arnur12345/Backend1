@@ -1,4 +1,4 @@
-import type { User, Task, TaskCreate, TaskUpdate, UserCreate, LoginCredentials, AuthResponse } from './types'
+import type { User, Task, TaskCreate, TaskUpdate, UserCreate, LoginCredentials, AuthResponse, FileInfo, UploadedFile, ChatMessage, ChatHistory, QuestionRequest, AgentResponse, AgentInfo } from './types'
 
 const API_BASE_URL = 'http://localhost:8000'
 
@@ -7,6 +7,13 @@ class ApiClient {
     const token = localStorage.getItem('access_token')
     return {
       'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  }
+
+  private getAuthHeadersForFormData(): HeadersInit {
+    const token = localStorage.getItem('access_token')
+    return {
       ...(token && { Authorization: `Bearer ${token}` })
     }
   }
@@ -130,6 +137,68 @@ class ApiClient {
   async markTaskPending(id: number): Promise<Task> {
     // Используем обычное обновление, так как mark_pending endpoint может не существовать
     return this.updateTask(id, { completed: false })
+  }
+
+  // Agentic System endpoints
+  async uploadFile(file: File): Promise<UploadedFile> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${API_BASE_URL}/agentic/upload`, {
+      method: 'POST',
+      headers: this.getAuthHeadersForFormData(),
+      body: formData
+    })
+
+    return this.handleResponse<UploadedFile>(response)
+  }
+
+  async getUploadedFiles(): Promise<FileInfo[]> {
+    const response = await fetch(`${API_BASE_URL}/agentic/files`, {
+      headers: this.getAuthHeaders()
+    })
+
+    return this.handleResponse<FileInfo[]>(response)
+  }
+
+  async deleteFile(fileId: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/agentic/files/${fileId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    })
+
+    return this.handleResponse<{ message: string }>(response)
+  }
+
+  async askQuestion(request: QuestionRequest): Promise<AgentResponse> {
+    const response = await fetch(`${API_BASE_URL}/agentic/ask`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(request)
+    })
+
+    return this.handleResponse<AgentResponse>(response)
+  }
+
+  async getChatHistory(fileId: string): Promise<ChatHistory> {
+    const response = await fetch(`${API_BASE_URL}/agentic/chat/${fileId}`, {
+      headers: this.getAuthHeaders()
+    })
+
+    return this.handleResponse<ChatHistory>(response)
+  }
+
+  async getAvailableAgents(): Promise<AgentInfo[]> {
+    const response = await fetch(`${API_BASE_URL}/agentic/agents`, {
+      headers: this.getAuthHeaders()
+    })
+
+    return this.handleResponse<AgentInfo[]>(response)
+  }
+
+  async getAvailableAgentsTest(): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/agentic/agents-test`)
+    return this.handleResponse<any>(response)
   }
 }
 

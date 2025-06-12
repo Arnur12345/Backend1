@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM --platform=linux/amd64 node:20-slim
 
 WORKDIR /app

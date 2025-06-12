@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +13,29 @@ from database import get_async_db
 from auth.schema import User
 from tasks.models import Task
 
-app = FastAPI()
+# Настройка безопасности для Swagger UI
+security = HTTPBearer()
+
+app = FastAPI(
+    title="FastAPI Task Management",
+    description="API для управления задачами с аутентификацией",
+    version="1.0.0",
+    # Настройка схемы безопасности для Swagger UI
+    openapi_tags=[
+        {
+            "name": "auth",
+            "description": "Операции аутентификации и авторизации",
+        },
+        {
+            "name": "tasks", 
+            "description": "Операции с задачами (требуют аутентификации)",
+        },
+        {
+            "name": "agentic_system",
+            "description": "AI агентная система для работы с файлами",
+        }
+    ]
+)
 
 # Настройка CORS
 app.add_middleware(
@@ -25,6 +48,10 @@ app.add_middleware(
 
 app.include_router(auth_router, tags=["auth"])
 app.include_router(tasks_router, tags=["tasks"])
+
+# Импортируем agentic router отдельно
+from agentic_system.api import router as agentic_router
+app.include_router(agentic_router, tags=["agentic_system"])
 
 
 @app.get("/")

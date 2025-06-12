@@ -9,7 +9,11 @@ from auth.models import User
 from auth.utils import decode_access_token
 from database import get_async_db
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+# Настройка OAuth2 схемы для Swagger UI
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/auth/token",
+    description="Введите Bearer токен для аутентификации"
+)
 
 
 async def get_current_user(
