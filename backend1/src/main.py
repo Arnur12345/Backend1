@@ -9,6 +9,14 @@ from auth.api import router as auth_router
 from tasks.api import router as tasks_router
 from database import get_async_db
 
+# Импорт Celery задач
+try:
+    from celery_tasks import example_task, send_notification, process_data, create_random_task
+    CELERY_AVAILABLE = True
+except ImportError:
+    CELERY_AVAILABLE = False
+    print("Celery tasks not available")
+
 # Import models for Alembic
 from auth.schema import User
 from tasks.models import Task
@@ -73,6 +81,85 @@ async def check_health(db: AsyncSession = Depends(get_async_db)):
         )
 
     return {"status": "ok", "database": "connected"}
+
+
+# Celery эндпоинты
+@app.post("/celery/example")
+async def run_example_task(name: str):
+    """Запустить пример Celery задачи"""
+    if not CELERY_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Celery не доступен")
+    
+    task = example_task.delay(name)
+    return {
+        "task_id": task.id,
+        "status": "Task queued",
+        "message": f"Пример задачи поставлен в очередь для {name}"
+    }
+
+
+@app.post("/celery/notification")
+async def send_notification_task(message: str, recipient: str):
+    """Отправить уведомление через Celery"""
+    if not CELERY_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Celery не доступен")
+    
+    task = send_notification.delay(message, recipient)
+    return {
+        "task_id": task.id,
+        "status": "Task queued",
+        "message": f"Задача уведомления поставлена в очередь для {recipient}"
+    }
+
+
+@app.post("/celery/process")
+async def process_data_task(data: dict):
+    """Обработать данные через Celery"""
+    if not CELERY_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Celery не доступен")
+    
+    task = process_data.delay(data)
+    return {
+        "task_id": task.id,
+        "status": "Task queued",
+        "message": "Задача обработки данных поставлена в очередь"
+    }
+
+
+@app.post("/celery/create-random-task")
+async def trigger_random_task():
+    """Вручную запустить создание случайной задачи"""
+    if not CELERY_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Celery не доступен")
+    
+    task = create_random_task.delay()
+    return {
+        "task_id": task.id,
+        "status": "Task queued",
+        "message": "Задача создания случайной задачи поставлена в очередь"
+    }
+
+
+@app.get("/celery/task/{task_id}/status")
+async def get_task_status(task_id: str):
+    """Получить статус Celery задачи"""
+    if not CELERY_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Celery не доступен")
+    
+    try:
+        from celery.result import AsyncResult
+        from celery_app import celery_app
+        
+        result = AsyncResult(task_id, app=celery_app)
+        
+        return {
+            "task_id": task_id,
+            "status": result.status,
+            "result": result.result if result.ready() else None,
+            "info": result.info if result.state == 'PENDING' else result.result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка получения статуса задачи: {str(e)}")
 
 
 if __name__ == "__main__":
