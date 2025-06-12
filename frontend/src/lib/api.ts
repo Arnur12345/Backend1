@@ -1,4 +1,4 @@
-import type { User, Task, TaskCreate, TaskUpdate, UserCreate, LoginCredentials, AuthResponse, FileInfo, UploadedFile, ChatMessage, ChatHistory, QuestionRequest, AgentResponse, AgentInfo } from './types'
+import type { User, Task, TaskCreate, TaskUpdate, UserCreate, LoginCredentials, AuthResponse, FileInfo, UploadedFile, ChatHistory, QuestionRequest, AgentResponse, AgentInfo } from './types'
 
 const API_BASE_URL = 'http://localhost:8000'
 

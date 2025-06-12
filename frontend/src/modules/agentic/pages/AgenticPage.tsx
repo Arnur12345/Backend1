@@ -1,22 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { apiClient } from '../../../lib/api'
+import { apiClient } from '../../../lib/api.ts'
+import type { FileInfo } from '../../../lib/types.ts'
 
-const AgenticPage = () => {
-  const [files, setFiles] = useState([])
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [chatHistory, setChatHistory] = useState([])
+interface ChatHistoryItem {
+  timestamp: string
+  question: string
+  answer: string
+  agent_type: string
+}
+
+const AgenticPage: React.FC = () => {
+  const [files, setFiles] = useState<FileInfo[]>([])
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const chatEndRef = useRef(null)
-  const fileInputRef = useRef(null)
+  const chatEndRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadFiles()
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     scrollToBottom()
   }, [chatHistory])
 
@@ -34,7 +42,7 @@ const AgenticPage = () => {
     }
   }
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file: File) => {
     // Проверка типа файла
     const allowedTypes = [
       'text/plain',
@@ -76,7 +84,7 @@ const AgenticPage = () => {
     }
   }
 
-  const handleFileSelect = async (fileId) => {
+  const handleFileSelect = async (fileId: string) => {
     setSelectedFile(fileId)
     setChatHistory([])
     setError(null)
@@ -89,7 +97,7 @@ const AgenticPage = () => {
     }
   }
 
-  const handleFileDelete = async (fileId) => {
+  const handleFileDelete = async (fileId: string) => {
     if (!confirm('Вы уверены, что хотите удалить этот файл?')) return
 
     try {
@@ -114,7 +122,7 @@ const AgenticPage = () => {
     setError(null)
 
     // Добавляем сообщение пользователя в чат
-    const newUserMessage = {
+    const newUserMessage: ChatHistoryItem = {
       timestamp: new Date().toISOString(),
       question: userMessage,
       answer: '',
@@ -149,14 +157,14 @@ const AgenticPage = () => {
     }
   }
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
     }
   }
 
-  const handleQuickQuestion = (question) => {
+  const handleQuickQuestion = (question: string) => {
     setMessage(question)
   }
 
@@ -171,14 +179,14 @@ const AgenticPage = () => {
     }
   }
 
-  const formatTimestamp = (timestamp) => {
+  const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString('ru-RU', {
       hour: '2-digit',
       minute: '2-digit'
     })
   }
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes'
     const k = 1024
     const sizes = ['Bytes', 'KB', 'MB', 'GB']

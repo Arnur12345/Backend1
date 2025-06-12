@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react'
-import { useAuth } from '../../lib/auth/AuthContext'
+// import React from 'react'
+import { useAuth } from '../../lib/auth/AuthContext.tsx'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 
 interface LayoutProps {
-  children: ReactNode
+  children: any
 }
 
 export default function Layout({ children }: LayoutProps) {

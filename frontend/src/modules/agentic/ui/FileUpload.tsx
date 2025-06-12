@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react'
-import { apiClient } from '../../../lib/api'
 import type { UploadedFile } from '../../../lib/types'
 
 interface FileUploadProps {

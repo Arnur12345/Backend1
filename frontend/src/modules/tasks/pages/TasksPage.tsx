@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import type { Task } from '../../../lib/types'
-import { apiClient } from '../../../lib/api'
+import type { Task } from '../../../lib/types.ts'
+import { apiClient } from '../../../lib/api.ts'
 import TaskList from '../components/TaskList'
 import TaskForm from '../components/TaskForm'
 import TaskFilters from '../components/TaskFilters'
